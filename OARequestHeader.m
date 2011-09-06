@@ -109,6 +109,7 @@
 	}
   
   NSArray *sortedPairs = [parameterPairs sortedArrayUsingSelector:@selector(compare:)];
+	[parameterPairs release];
   NSString *normalizedRequestParameters = [[[NSString alloc] initWithString:[sortedPairs componentsJoinedByString:@"&"]] autorelease];
   
   // OAuth Spec, Section 9.1.2 "Concatenate Request Elements"
