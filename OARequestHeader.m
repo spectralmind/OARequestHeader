@@ -19,28 +19,57 @@
 
 @implementation OARequestHeader
 
+@synthesize consumer;
+@synthesize token;
+@synthesize provider;
+@synthesize method;
+@synthesize realm;
+@synthesize signature;
+@synthesize signatureProvider;
+@synthesize nonce;
+@synthesize timestamp;
+
 - (id)initWithProvider:(NSString *)theProvider
                 method:(NSString *)theMethod
               consumer:(OAConsumer *)theConsumer
                  token:(OAToken *)theToken
                  realm:(NSString *)theRealm {
-  provider = theProvider;
-  
-  if (theMethod == nil) {
-    method = theMethod;
-  }
-  else {
-    method = @"GET";
-  }
-  
-  consumer = theConsumer;
-  token = theToken;
-  realm = [theRealm copy];
-  signatureProvider = [[OAHMAC_SHA1SignatureProvider alloc] init]; // HMAC-SHA1
+    self = [super init];
+    if (self)
+    {
+        provider = theProvider;
+        
+        if (theMethod == nil) {
+            method = theMethod;
+        }
+        else {
+            method = @"GET";
+        }
+        
+        consumer = theConsumer;
+        token = theToken;
+        realm = [theRealm copy];
+        signatureProvider = 
+        [[[OAHMAC_SHA1SignatureProvider alloc] init] autorelease]; // HMAC-SHA1
+    }
   
   return self;
 }
 
+- (void)dealloc
+{
+    [consumer release];
+    [token release];
+    [provider release];
+    [method release];
+    [realm release];
+    [signature release];
+    [signatureProvider release];
+    [nonce release];
+    [timestamp release];
+    
+    [super dealloc];
+}
 
 - (NSString *)generateRequestHeaders {
   [self _generateTimestamp];
@@ -109,7 +138,9 @@
 	}
   
   NSArray *sortedPairs = [parameterPairs sortedArrayUsingSelector:@selector(compare:)];
-  NSString *normalizedRequestParameters = [[[NSString alloc] initWithString:[sortedPairs componentsJoinedByString:@"&"]] autorelease];
+    [parameterPairs release];
+  NSString *normalizedRequestParameters = 
+    [[[NSString alloc] initWithString:[sortedPairs componentsJoinedByString:@"&"]] autorelease];
   
   // OAuth Spec, Section 9.1.2 "Concatenate Request Elements"
   return [NSString stringWithFormat:@"%@&%@&%@", method, [provider encodedURLParameterString], [normalizedRequestParameters encodedURLString]];

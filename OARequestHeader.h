@@ -16,15 +16,6 @@
 
 @interface OARequestHeader : NSObject {
 @protected
-  OAConsumer *consumer;
-  OAToken *token;
-  NSString *provider;
-  NSString *method;
-  NSString *realm;
-  NSString *signature;
-  id <OASignatureProviding, NSObject> signatureProvider;
-  NSString *nonce;
-  NSString *timestamp;
 }
 
 - (id)initWithProvider:(NSString *)theProvider
@@ -34,5 +25,15 @@
                  realm:(NSString *)theRealm;
 
 - (NSString *)generateRequestHeaders;
+
+@property (nonatomic, retain) OAConsumer *consumer;
+@property (nonatomic, retain) OAToken *token;
+@property (nonatomic, retain) NSString *provider;
+@property (nonatomic, retain) NSString *method;
+@property (nonatomic, retain) NSString *realm;
+@property (nonatomic, retain) NSString *signature;
+@property (nonatomic, retain) id <OASignatureProviding, NSObject> signatureProvider;
+@property (nonatomic, retain) NSString *nonce;
+@property (nonatomic, retain) NSString *timestamp;
 
 @end
