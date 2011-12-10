@@ -37,19 +37,19 @@
     self = [super init];
     if (self)
     {
-        provider = theProvider;
+        self.provider = theProvider;
         
         if (theMethod == nil) {
-            method = theMethod;
+            self.method = theMethod;
         }
         else {
-            method = @"GET";
+            self.method = @"GET";
         }
         
-        consumer = theConsumer;
-        token = theToken;
-        realm = [theRealm copy];
-        signatureProvider = 
+        self.consumer = theConsumer;
+        self.token = theToken;
+        self.realm = theRealm;
+        self.signatureProvider = 
         [[[OAHMAC_SHA1SignatureProvider alloc] init] autorelease]; // HMAC-SHA1
     }
   
@@ -75,8 +75,11 @@
   [self _generateTimestamp];
   [self _generateNonce];
   
-  signature = [signatureProvider signClearText:[self _signatureBaseString]
-                                    withSecret:[NSString stringWithFormat:@"%@&%@", consumer.secret, token.secret ? token.secret : @""]];
+    self.signature = 
+    [self.signatureProvider 
+     signClearText:[self _signatureBaseString]
+     withSecret:[NSString stringWithFormat:@"%@&%@", consumer.secret, 
+                 token.secret ? token.secret : @""]];
   
 	NSMutableArray *chunks = [[[NSMutableArray alloc] init] autorelease];
   
@@ -103,7 +106,7 @@
 
 
 - (void)_generateTimestamp {
-  timestamp = [NSString stringWithFormat:@"%d", time(NULL)];
+  self.timestamp = [NSString stringWithFormat:@"%d", time(NULL)];
 }
 
 
@@ -116,7 +119,7 @@
 		[out appendFormat:@"%02X", result[i]];
 	}
   
-  nonce = [out lowercaseString];
+  self.nonce = [[[out lowercaseString] copy] autorelease];
 }
 
 
