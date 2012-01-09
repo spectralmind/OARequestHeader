@@ -26,14 +26,14 @@
 
 - (NSString *)generateRequestHeaders;
 
-@property (nonatomic, retain) OAConsumer *consumer;
-@property (nonatomic, retain) OAToken *token;
-@property (nonatomic, retain) NSString *provider;
-@property (nonatomic, retain) NSString *method;
-@property (nonatomic, retain) NSString *realm;
-@property (nonatomic, retain) NSString *signature;
-@property (nonatomic, retain) id <OASignatureProviding, NSObject> signatureProvider;
-@property (nonatomic, retain) NSString *nonce;
-@property (nonatomic, retain) NSString *timestamp;
+@property (nonatomic, strong) OAConsumer *consumer;
+@property (nonatomic, strong) OAToken *token;
+@property (nonatomic, strong) NSString *provider;
+@property (nonatomic, strong) NSString *method;
+@property (nonatomic, strong) NSString *realm;
+@property (nonatomic, strong) NSString *signature;
+@property (nonatomic, strong) id <OASignatureProviding, NSObject> signatureProvider;
+@property (nonatomic, strong) NSString *nonce;
+@property (nonatomic, strong) NSString *timestamp;
 
 @end
