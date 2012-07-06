@@ -74,12 +74,12 @@
 
 
 - (void)_generateTimestamp {
-  timestamp = [NSString stringWithFormat:@"%d", time(NULL)];
+  timestamp = [NSString stringWithFormat:@"%lu", time(NULL)];
 }
 
 
 - (void)_generateNonce {
-	const char *cStr = [[NSString stringWithFormat:@"%d%d", timestamp, random()] UTF8String];
+	const char *cStr = [[NSString stringWithFormat:@"%@%lu", timestamp, random()] UTF8String];
 	unsigned char result[CC_SHA1_DIGEST_LENGTH];
 	CC_SHA1(cStr, strlen(cStr), result);
 	NSMutableString *out = [NSMutableString stringWithCapacity:20];
