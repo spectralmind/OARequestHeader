@@ -14,18 +14,7 @@
 #import "OARequestParameter.h"
 
 
-@interface OARequestHeader : NSObject {
-@protected
-  OAConsumer *consumer;
-  OAToken *token;
-  NSString *provider;
-  NSString *method;
-  NSString *realm;
-  NSString *signature;
-  id <OASignatureProviding, NSObject> signatureProvider;
-  NSString *nonce;
-  NSString *timestamp;
-}
+@interface OARequestHeader : NSObject
 
 - (id)initWithProvider:(NSString *)theProvider
                 method:(NSString *)theMethod

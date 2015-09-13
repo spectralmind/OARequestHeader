@@ -10,44 +10,85 @@
 
 #include <CommonCrypto/CommonDigest.h>
 
+#import "NSString+URLEncoding.h"
 
-@interface OARequestHeader (Private)
-- (void)_generateTimestamp;
-- (void)_generateNonce;
-- (NSString *)_signatureBaseString;
+
+@interface OARequestHeader ()
+
+@property (nonatomic, retain) OAConsumer *consumer;
+@property (nonatomic, retain) OAToken *token;
+@property (nonatomic, retain) NSString *provider;
+@property (nonatomic, retain) NSString *method;
+@property (nonatomic, retain) NSString *realm;
+@property (nonatomic, retain) NSString *signature;
+@property (nonatomic, retain) id <OASignatureProviding, NSObject> signatureProvider;
+@property (nonatomic, retain) NSString *nonce;
+@property (nonatomic, retain) NSString *timestamp;
+
 @end
 
 @implementation OARequestHeader
+
+@synthesize consumer;
+@synthesize token;
+@synthesize provider;
+@synthesize method;
+@synthesize realm;
+@synthesize signature;
+@synthesize signatureProvider;
+@synthesize nonce;
+@synthesize timestamp;
 
 - (id)initWithProvider:(NSString *)theProvider
                 method:(NSString *)theMethod
               consumer:(OAConsumer *)theConsumer
                  token:(OAToken *)theToken
                  realm:(NSString *)theRealm {
-  provider = theProvider;
-  
-  if (theMethod == nil) {
-    method = theMethod;
-  }
-  else {
-    method = @"GET";
-  }
-  
-  consumer = theConsumer;
-  token = theToken;
-  realm = [theRealm copy];
-  signatureProvider = [[OAHMAC_SHA1SignatureProvider alloc] init]; // HMAC-SHA1
+    self = [super init];
+    if (self)
+    {
+        self.provider = theProvider;
+        
+        if (theMethod == nil) {
+            self.method = theMethod;
+        }
+        else {
+            self.method = @"GET";
+        }
+        
+        self.consumer = theConsumer;
+        self.token = theToken;
+        self.realm = theRealm;
+        self.signatureProvider = 
+        [[[OAHMAC_SHA1SignatureProvider alloc] init] autorelease]; // HMAC-SHA1
+    }
   
   return self;
 }
 
+- (void)dealloc {
+    [consumer release];
+    [token release];
+    [provider release];
+    [method release];
+    [realm release];
+    [signature release];
+    [signatureProvider release];
+    [nonce release];
+    [timestamp release];
+    
+    [super dealloc];
+}
 
 - (NSString *)generateRequestHeaders {
   [self _generateTimestamp];
   [self _generateNonce];
   
-  signature = [signatureProvider signClearText:[self _signatureBaseString]
-                                    withSecret:[NSString stringWithFormat:@"%@&%@", consumer.secret, token.secret ? token.secret : @""]];
+    self.signature =
+    [self.signatureProvider 
+     signClearText:[self _signatureBaseString]
+     withSecret:[NSString stringWithFormat:@"%@&%@", consumer.secret, 
+                 token.secret ? token.secret : @""]];
   
 	NSMutableArray *chunks = [[[NSMutableArray alloc] init] autorelease];
   
@@ -74,12 +115,12 @@
 
 
 - (void)_generateTimestamp {
-  timestamp = [NSString stringWithFormat:@"%lu", time(NULL)];
+  self.timestamp = [NSString stringWithFormat:@"%ld", time(NULL)];
 }
 
 
 - (void)_generateNonce {
-	const char *cStr = [[NSString stringWithFormat:@"%@%lu", timestamp, random()] UTF8String];
+	const char *cStr = [[NSString stringWithFormat:@"%@%ld", timestamp, random()] UTF8String];
 	unsigned char result[CC_SHA1_DIGEST_LENGTH];
 	CC_SHA1(cStr, strlen(cStr), result);
 	NSMutableString *out = [NSMutableString stringWithCapacity:20];
@@ -87,7 +128,7 @@
 		[out appendFormat:@"%02X", result[i]];
 	}
   
-  nonce = [out lowercaseString];
+  self.nonce = [[[out lowercaseString] copy] autorelease];
 }
 
 
@@ -109,8 +150,9 @@
 	}
   
   NSArray *sortedPairs = [parameterPairs sortedArrayUsingSelector:@selector(compare:)];
-	[parameterPairs release];
-  NSString *normalizedRequestParameters = [[[NSString alloc] initWithString:[sortedPairs componentsJoinedByString:@"&"]] autorelease];
+    [parameterPairs release];
+  NSString *normalizedRequestParameters = 
+    [[[NSString alloc] initWithString:[sortedPairs componentsJoinedByString:@"&"]] autorelease];
   
   // OAuth Spec, Section 9.1.2 "Concatenate Request Elements"
   return [NSString stringWithFormat:@"%@&%@&%@", method, [provider encodedURLParameterString], [normalizedRequestParameters encodedURLString]];
